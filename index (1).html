@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d62">
+<title>Часы</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--ink:#1d2b2c;--mute:#6b7b7c;--acc:#2f5d62;--acc2:#5e8c61;--line:#dfe6e5;--warn:#c0612b;--ok:#3d8b5a}
+@media (prefers-color-scheme:dark){:root{--bg:#121918;--card:#1b2625;--ink:#e6efee;--mute:#92a5a4;--acc:#6fb3ba;--acc2:#8fc093;--line:#2b3a39;--warn:#e08a55;--ok:#6cc58b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+header{background:var(--acc);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:18px;font-weight:600}
+main{max-width:720px;margin:0 auto;padding:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.card h2{margin:0 0 6px;font-size:13px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--bg);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--mute)}
+.big{font-size:30px;font-weight:700}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1 1 auto}
+label{display:block;font-size:13px;color:var(--mute);margin:6px 0 2px}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+textarea{min-height:44px;resize:vertical;margin-top:6px}
+button{border:0;border-radius:10px;padding:10px 14px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button.del{background:transparent;color:var(--warn);padding:4px 8px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--acc2)}
+.hint{color:var(--mute);font-size:13px}
+.ok{color:var(--ok);font-weight:600}.warn{color:var(--warn);font-weight:600}
+.item{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;background:none;color:var(--mute);border-radius:0;padding:10px 2px;font-size:11px;font-weight:500}
+nav button.on{color:var(--acc);font-weight:700}
+nav button span{display:block;font-size:20px;line-height:1.2}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .h{text-align:center;font-size:12px;color:var(--mute)}
+.day{min-height:62px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 4px;font-size:11px;cursor:pointer;overflow:hidden}
+.day.empty{background:none;border:0;cursor:default}
+.day.today{border-color:var(--acc);border-width:2px}
+.day .n{color:var(--mute)}
+.day .hh{font-weight:700;font-size:13px;color:var(--acc)}
+.day .st{color:var(--acc2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day.has{background:color-mix(in srgb,var(--acc2) 16%,var(--bg))}
+a.lnk{color:var(--acc);font-weight:600}
+.hidden{display:none}
+.datebar{display:flex;gap:8px;align-items:center}
+.datebar button{flex:0 0 auto;padding:10px 16px}
+.datebar input{flex:1 1 auto;min-width:0;width:auto}
+.hm{display:flex;gap:8px}
+.hm>div{flex:1}
+.needs{display:grid;gap:8px;margin-bottom:8px}
+.needs.two{grid-template-columns:1fr 1fr}
+.need{background:color-mix(in srgb,var(--acc2) 18%,var(--card));border-radius:10px;padding:7px 10px;font-size:14px;line-height:1.3}
+.need b{font-size:16px}
+.dayline{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:8px}
+.dl{font-size:20px;font-weight:700;color:var(--acc)}
+.dh{font-size:20px;font-weight:700;white-space:nowrap}
+.tin{display:flex;gap:6px;align-items:center;margin-top:8px}
+.tin input{flex:1 1 0;min-width:0;width:auto}
+.tin button{flex:0 0 auto}
+.tin span{color:var(--mute);font-size:14px}
+.stepper{display:flex;gap:8px;align-items:center;margin:6px 0}
+.stepper button{flex:0 0 auto;padding:6px 16px;font-size:18px}
+.stepper input{flex:1 1 auto;width:auto;padding:0;border:0;background:none;accent-color:var(--acc)}
+.stud{padding:8px 0;border-top:1px solid var(--line)}
+.stud:first-of-type{border-top:0}
+.row2{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+</style>
+</head>
+<body>
+<header><h1>📖 Часы</h1></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+
+<script>
+"use strict";
+const KEY = "service-hours-v1";
+const BOOK_URL = "jwlibrary:///finder?srcid=jwlshare&wtlocale=U&prefer=lang&pub=lff";
+const LESSONS = 60;
+/* Порядок в книге: уроки 1–60 и после 12, 33, 47, 60 уроков — повторение раздела */
+const REVIEW_AFTER = {12:1,33:2,47:3,60:4};
+const ITEMS = (()=>{ const a=[]; for(let n=1;n<=LESSONS;n++){ a.push({k:"l",n}); if(REVIEW_AFTER[n]) a.push({k:"r",n:REVIEW_AFTER[n]}); } return a; })();
+const TOTAL = ITEMS.length;   // 64 позиции: 60 уроков + 4 повторения
+const REVIEW_DOCIDS = {1:1102021311,2:1102021321,3:1102021331,4:1102021341};
+const itemDocid = p => { const it=ITEMS[p-1]; return !it ? null : it.k==="l" ? 1102021200+it.n : REVIEW_DOCIDS[it.n]; };  // уроки идут подряд: 1102021200 + номер
+const itemName = p => { const it=ITEMS[p-1]; return !it ? "—" : it.k==="l" ? `Урок ${it.n}` : `Повторение ${it.n} раздела`; };
+const posOfLesson = n => ITEMS.findIndex(i=>i.k==="l" && i.n===n)+1;
+const WEB_BOOK_URL = "https://www.jw.org/finder?srcid=jwlshare&wtlocale=U&prefer=lang&pub=lff";
+/* основная ссылка — как в кнопке «Поделиться» в JW Library: на телефоне с приложением открывается в приложении */
+const lessonLink = p => itemDocid(p) ? `https://www.jw.org/finder?srcid=jwlshare&wtlocale=U&prefer=lang&docid=${itemDocid(p)}` : WEB_BOOK_URL;
+/* запасная ссылка — напрямую через адрес приложения */
+const lessonAppLink = p => itemDocid(p) ? `jwlibrary:///finder?srcid=jwlshare&wtlocale=U&prefer=lang&docid=${itemDocid(p)}` : BOOK_URL;
+const lessonLabel = p => itemDocid(p) ? `Открыть ${itemName(p).toLowerCase()}` : "Открыть книгу";
+const studyLabel = r => r.pos ? itemName(r.pos) : `Урок ${r.lesson||"—"}`;
+const MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+/* ---------- сообщения (вместо окон alert/confirm, которые браузер может блокировать) ---------- */
+let pendingDel = null;
+function toast(msg){
+  let t=document.getElementById("toast");
+  if(!t){ t=document.createElement("div"); t.id="toast"; t.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1d2b2c;color:#fff;padding:10px 16px;border-radius:10px;z-index:20;max-width:90%;font-size:14px;text-align:center"; document.body.appendChild(t); }
+  t.textContent=msg; t.style.display="block"; clearTimeout(toast.h); toast.h=setTimeout(()=>{t.style.display="none"},3500);
+}
+
+/* ---------- состояние ---------- */
+let S = load();
+function migrate(d){ (d.students||[]).forEach(x=>{ if(x.pos==null) x.pos = x.lesson ? posOfLesson(+x.lesson) : 0; }); return d; }
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s) return migrate(Object.assign({goal:30,yearMode:"service",days:{},students:[]}, s)); }catch(e){}
+  return {goal:30,yearMode:"service",days:{},students:[]};
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("Не удалось сохранить данные в браузере."); } }
+
+/* ---------- даты ---------- */
+const pad = n => String(n).padStart(2,"0");
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y,m-1,d); };
+const today = () => { const d = new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); };
+const addDays = (d,n) => new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const dim = (y,m) => new Date(y,m+1,0).getDate();
+const weekStart = d => addDays(d, -((d.getDay()+6)%7));
+const cap = t => t.charAt(0).toUpperCase()+t.slice(1);
+const dayLabel = k => parse(k).toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
+
+/* ---------- время ---------- */
+const fmt = m => `${Math.floor(m/60)}:${pad(Math.round(m%60))}`;
+const fmtWords = m => { m=Math.max(0,Math.round(m)); const h=Math.floor(m/60), r=m%60; return h&&r?`${h} ч ${r} мин`:h?`${h} ч`:`${r} мин`; };
+function parseDuration(t){
+  t = String(t).trim().replace(",",".");
+  if(!t) return NaN;
+  if(t.includes(":")){ const [h,m] = t.split(":").map(Number); return (h*60)+(m||0); }
+  return Math.round(parseFloat(t)*60);
+}
+const dayMin = k => (S.days[k]?.sessions||[]).reduce((a,s)=>a+s.min,0);
+function sumRange(from,to){ let t=0; for(let d=new Date(from); d<=to; d=addDays(d,1)) t+=dayMin(key(d)); return t; }
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- расчёты ---------- */
+function serviceYear(d){ const y = d.getMonth()>=8 ? d.getFullYear() : d.getFullYear()-1; return {start:new Date(y,8,1), end:new Date(y+1,7,31), label:`${y}/${y+1}`}; }
+function yearRange(d){ return S.yearMode==="service" ? serviceYear(d) : {start:new Date(d.getFullYear(),0,1), end:new Date(d.getFullYear(),11,31), label:String(d.getFullYear())}; }
+/* Недели внутри месяца: 1–7, 8–14, 15–21, 22–28, а остаток (29–31) — отдельная неделя */
+function weekBlock(d){
+  const y=d.getFullYear(), m=d.getMonth(), n=dim(y,m), day=d.getDate();
+  const idx = Math.min(4, Math.floor((day-1)/7));
+  const s = idx*7+1, e = idx===4 ? n : s+6;
+  return {start:new Date(y,m,s), end:new Date(y,m,e), num:idx+1};
+}
+function rangeLabel(a,b){
+  const sameMonth = a.getMonth()===b.getMonth();
+  if(a.getTime()===b.getTime()) return a.toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+  return sameMonth ? `${a.getDate()}–${b.toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}`
+    : `${a.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})} – ${b.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}`;
+}
+function stats(){
+  const t = today();
+  const wb = weekBlock(t), ws = wb.start, we = wb.end;
+  const ms = new Date(t.getFullYear(),t.getMonth(),1), me = new Date(t.getFullYear(),t.getMonth(),dim(t.getFullYear(),t.getMonth()));
+  const yr = yearRange(t);
+  const w = sumRange(ws,we), m = sumRange(ms,me), y = sumRange(yr.start,yr.end);
+  const goalMin = S.goal*60;
+  const leftMonth = Math.max(0, goalMin-m);
+  const daysLeftM = Math.round((me - t)/864e5)+1;
+  const yearNorm = S.goal*12*60;
+  const leftYear = Math.max(0, yearNorm-y);
+  const daysLeftY = Math.round((yr.end - t)/864e5)+1;
+  return {wb,w,m,y,goalMin,leftMonth,daysLeftM,perDayM:leftMonth/daysLeftM,yearNorm,leftYear,daysLeftY,perDayY:leftYear/Math.max(1,daysLeftY),yr};
+}
+
+/* ---------- интерфейс ---------- */
+let tab = "day", curDate = key(today()), calYM = (()=>{const t=today();return [t.getFullYear(),t.getMonth()];})();
+const TABS = [["day","🗓","День"],["month","📊","Итоги"],["set","⚙️","Настройки"]];
+function render(keep){
+  document.getElementById("nav").innerHTML = TABS.map(([id,ic,n])=>`<button class="${tab===id?"on":""}" data-tab="${id}"><span>${ic}</span>${n}</button>`).join("");
+  const app = document.getElementById("app");
+  app.innerHTML = ({day:viewDay,month:viewMonth,set:viewSet})[tab]();
+  if(!keep) window.scrollTo(0,0);
+}
+
+/* --- День --- */
+function viewDay(){
+  const rec = S.days[curDate] || {sessions:[],studies:[],note:""};
+  const total = dayMin(curDate);
+  return summaryHtml("need") + `
+  <div class="card">
+    <div class="datebar"><button class="sec" data-act="prevDay">←</button><input type="date" id="dateIn" value="${curDate}"><button class="sec" data-act="nextDay">→</button></div>
+    <div class="dayline"><span class="dl">${esc(cap(dayLabel(curDate)))}</span><span class="dh">${fmt(total)} ч</span></div>
+  </div>
+
+  <div class="card">
+    <div class="seg"><button class="on" data-act="mode" data-m="dur">Часы</button><button data-act="mode" data-m="range">С — до</button></div>
+    <div id="m-dur" class="tin"><input id="hIn" type="number" min="0" max="24" inputmode="numeric" placeholder="ч"><input id="mIn" type="number" min="0" max="59" inputmode="numeric" placeholder="мин"><button data-act="addTime">Добавить</button></div>
+    <div id="m-range" class="hidden"><div class="tin"><span>С</span><input id="fh" type="number" min="0" max="23" inputmode="numeric" placeholder="ч"><input id="fm" type="number" min="0" max="59" inputmode="numeric" placeholder="мин"><span>до</span><input id="th" type="number" min="0" max="23" inputmode="numeric" placeholder="ч"><input id="tm" type="number" min="0" max="59" inputmode="numeric" placeholder="мин"></div><button data-act="addTime" style="margin-top:8px">Добавить</button></div>
+    ${rec.sessions.map((s,i)=>`<div class="item"><div><b>${fmt(s.min)}</b> <span class="hint">${esc(s.label||"")}</span></div><button class="del" data-act="delSession" data-i="${i}">✕</button></div>`).join("")}
+  </div>
+
+  <div class="card">
+    <h2>Изучения</h2>
+    ${studentsHtml()}
+  </div>
+
+  <div class="card">
+    <textarea id="dayNote" placeholder="Заметка дня" style="margin-top:0">${esc(rec.note||"")}</textarea>
+    <div style="margin-top:6px"><button class="sec" data-act="saveNote">Сохранить</button></div>
+  </div>`;
+}
+
+/* --- Итоги --- */
+function summaryHtml(part){
+  const s = stats(), t = today();
+  const pctM = Math.min(100, s.goalMin? s.m/s.goalMin*100:0);
+  const cell = (lab,left,days,per) => left===0
+    ? `<div class="need"><span class="hint">${lab}</span><br><span class="ok">✓ выполнено</span></div>`
+    : `<div class="need"><span class="hint">${lab}</span><br><b>${fmtWords(per)}</b> в день<br><span class="hint">осталось ${fmtWords(left)} · ${days} дн.</span></div>`;
+  const need = `<div class="needs ${S.goal===50?"two":""}">${cell(`Месяц · ${S.goal} ч`,s.leftMonth,s.daysLeftM,s.perDayM)}${S.goal===50?cell(`Год · ${S.goal*12} ч`,s.leftYear,s.daysLeftY,s.perDayY):""}</div>`;
+  if(part==="need") return need;
+  return `
+  <div class="card">
+    <div class="grid3">
+      <div class="stat"><b>${fmt(s.w)}</b><span>Неделя ${s.wb.num}<br>(${rangeLabel(s.wb.start,s.wb.end)})</span></div>
+      <div class="stat"><b>${fmt(s.m)}</b><span>${MONTHS[t.getMonth()]}</span></div>
+      <div class="stat"><b>${fmt(s.y)}</b><span>Год</span></div>
+    </div>
+    <div class="bar" style="margin-top:8px"><i style="width:${pctM}%"></i></div>
+    <div class="hint">Цель на месяц: ${fmt(s.m)} / ${S.goal}:00</div>
+  </div>`;
+}
+
+/* --- Итоги по неделям (с 1-го числа месяца, остаток — отдельная неделя) --- */
+function weeksHtml(y,m){
+  const n=dim(y,m), tk=today();
+  let rows="";
+  for(let i=0;i<5;i++){
+    const s1=i*7+1; if(s1>n) break;
+    const e1=i===4 ? n : Math.min(n,s1+6);
+    const st=new Date(y,m,s1), en=new Date(y,m,e1), tot=sumRange(st,en);
+    const cur = tk>=st && tk<=en;
+    rows += `<div class="item"><div><b>Неделя ${i+1}</b>${cur?' <span class="ok">· сейчас</span>':""}<br><span class="hint">${rangeLabel(st,en)}${i===4?" · остаток месяца":""}</span></div><b style="font-size:20px">${fmt(tot)} ч</b></div>`;
+  }
+  return `<div class="card"><h2>Часы по неделям</h2>${rows}</div>`;
+}
+
+/* --- Месяц --- */
+function viewMonth(){
+  const [y,m] = calYM, first = new Date(y,m,1);
+  const lead = (first.getDay()+6)%7, n = dim(y,m), tk = key(today());
+  let cells = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<div class="h">${d}</div>`).join("");
+  for(let i=0;i<lead;i++) cells += `<div class="day empty"></div>`;
+  let total = 0; const list = [];
+  for(let d=1; d<=n; d++){
+    const k = `${y}-${pad(m+1)}-${pad(d)}`, min = dayMin(k), rec = S.days[k];
+    total += min;
+    const names = (rec?.studies||[]).map(s=>S.students.find(x=>x.id===s.sid)?.name).filter(Boolean);
+    if(rec && (rec.studies?.length||rec.note)) list.push([k,rec]);
+    cells += `<div class="day ${k===tk?"today":""} ${min||names.length?"has":""}" data-act="openDay" data-k="${k}"><div class="n">${d}</div>${min?`<div class="hh">${fmt(min)}</div>`:""}${names.length?`<div class="st">📖 ${esc(names.join(", "))}</div>`:""}</div>`;
+  }
+  const goalMin = S.goal*60;
+  return summaryHtml() + `
+  <div class="card">
+    <div class="row"><button class="sec" data-act="prevMonth">←</button><b style="text-align:center">${MONTHS[m]} ${y}</b><button class="sec" data-act="nextMonth">→</button></div>
+    <p>Итого за месяц: <b>${fmt(total)}</b> из ${S.goal}:00 ${total>=goalMin?'<span class="ok">✓</span>':`<span class="hint">(осталось ${fmtWords(goalMin-total)})</span>`}</p>
+    <div class="cal">${cells}</div>
+  </div>
+  ${weeksHtml(y,m)}
+  <div class="card"><h2>Изучения и заметки месяца</h2>
+    ${list.length? list.map(([k,rec])=>`<div class="item"><div><b>${parse(k).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}</b> <span class="hint">${fmt(dayMin(k))} ч</span><br>
+      ${(rec.studies||[]).map(s=>{const st=S.students.find(x=>x.id===s.sid);return `📖 ${esc(st?st.name:"?")} — ${esc(studyLabel(s))}${s.point?`, п. ${esc(s.point)}`:""}${s.note?` · ${esc(s.note)}`:""}`}).join("<br>")}
+      ${rec.note?`<br><span class="hint">📝 ${esc(rec.note)}</span>`:""}</div></div>`).join("") : `<p class="hint">Пока записей нет.</p>`}
+  </div>`;
+}
+
+/* --- Изучающие на первой странице --- */
+const studLabel = s => { const it=ITEMS[(s.pos||0)-1]; return !it ? "ещё не начали" : it.k==="l" ? `урок ${it.n} из ${LESSONS}${s.point?`, пункт ${s.point}`:""}` : `повторение ${it.n} раздела`; };
+function studentsHtml(){
+  if(!S.students.length) return `<p class="hint">Добавьте изучающего в «Настройках».</p>`;
+  const rec = S.days[curDate] || {studies:[]};
+  const mine = id => rec.studies.map((r,i)=>[r,i]).filter(([r])=>r.sid===id).map(([r,i])=>`<div class="item"><div>✓ <b>${esc(studyLabel(r))}</b>${r.point?`, п. ${esc(r.point)}`:""}${r.note?` · <span class="hint">${esc(r.note)}</span>`:""}</div><button class="del" data-act="delStudy" data-i="${i}">✕</button></div>`).join("");
+  return S.students.map(s=>{
+    const n = s.pos||0;
+    return `<div class="stud" data-sid="${s.id}">
+      <div class="row2"><b style="font-size:17px">${esc(s.name)}</b><span class="hint lbl">${studLabel(s)}</span></div>
+      <div class="bar"><i style="width:${n/TOTAL*100}%"></i></div>
+      <div class="stepper"><button class="sec" data-act="lessonStep" data-id="${s.id}" data-d="-1">−</button><input type="range" min="0" max="${TOTAL}" value="${n}" data-slide="${s.id}"><button class="sec" data-act="lessonStep" data-id="${s.id}" data-d="1">+</button></div>
+      <div class="row2"><a class="lnk" href="${esc(lessonLink(n))}">${lessonLabel(n)} →</a><a class="hint app" href="${esc(lessonAppLink(n))}">в приложении</a></div>
+      <textarea data-note="${s.id}" placeholder="Примечание" style="min-height:40px"></textarea>
+      <div class="tin"><span>пункт</span><input type="number" min="0" value="${s.point||""}" data-f="point" data-id="${s.id}" style="flex:0 0 64px"><button data-act="logStudy" data-id="${s.id}" style="flex:1">Записать изучение</button></div>
+      ${mine(s.id)}
+    </div>`}).join("");
+}
+function studDom(id){
+  const s = S.students.find(x=>x.id===id), box = document.querySelector(`.stud[data-sid="${id}"]`);
+  if(!s||!box) return;
+  const n = s.pos||0;
+  box.querySelector(".lbl").textContent = studLabel(s);
+  box.querySelector(".bar i").style.width = (n/TOTAL*100)+"%";
+  box.querySelector("input[type=range]").value = n;
+  const a = box.querySelector("a.lnk"); a.href = lessonLink(n); a.textContent = lessonLabel(n)+" →";
+  box.querySelector("a.app").href = lessonAppLink(n);
+}
+
+/* --- Изучающие в настройках --- */
+function studSettingsHtml(){
+  return `<div class="card"><h2>Изучающие</h2>
+    <div class="row"><input id="newStud" placeholder="Имя изучающего"><button data-act="addStud" style="flex:0 0 auto">Добавить</button></div>
+    ${S.students.map(s=>`<div class="item"><span>${esc(s.name)}</span><button class="del" data-act="delStud" data-id="${s.id}">${pendingDel===s.id?"Точно удалить?":"Удалить"}</button></div>`).join("")}
+  </div>`;
+}
+
+/* --- Настройки --- */
+function viewSet(){
+  return `
+  <div class="card"><h2>Норма часов в месяц</h2>
+    <div class="seg">${[15,30,50,100].map(g=>`<button class="${S.goal===g?"on":""}" data-act="goal" data-g="${g}">${g}</button>`).join("")}</div>
+    <p class="hint">При выборе 50 на первой странице показывается ещё и годовая норма (600 ч) и сколько нужно в день.</p>
+  </div>
+  ${studSettingsHtml()}
+  <div class="card"><h2>Как считать год</h2>
+    <div class="seg"><button class="${S.yearMode==="service"?"on":""}" data-act="ym" data-v="service">Сентябрь–август</button><button class="${S.yearMode==="cal"?"on":""}" data-act="ym" data-v="cal">Календарный</button></div>
+  </div>
+  <div class="card"><h2>Резервная копия</h2>
+    <p class="hint">Данные хранятся в браузере этого устройства. Сохраняйте копию, чтобы не потерять их или перенести на другое устройство.</p>
+    <div class="row"><button data-act="export">Скачать копию</button><button class="sec" data-act="import">Загрузить копию</button></div>
+    <input type="file" id="file" accept="application/json" class="hidden">
+  </div>`;
+}
+
+/* ---------- события ---------- */
+document.addEventListener("click", e=>{
+  const nb = e.target.closest("[data-tab]"); if(nb){ tab = nb.dataset.tab; render(); return; }
+  const el = e.target.closest("[data-act]");
+  if(pendingDel && !(el && el.dataset.act==="delStud" && el.dataset.id===pendingDel)){ pendingDel=null; if(tab==="set") render(true); }
+  if(!el) return;
+  const a = el.dataset.act;
+  const rec = () => (S.days[curDate] ||= {sessions:[],studies:[],note:""});
+  const clean = () => { const r=S.days[curDate]; if(r && !r.sessions.length && !r.studies.length && !r.note) delete S.days[curDate]; };
+  switch(a){
+    case "prevDay": curDate = key(addDays(parse(curDate),-1)); render(); break;
+    case "nextDay": curDate = key(addDays(parse(curDate),1)); render(); break;
+    case "mode": {
+      document.querySelectorAll('[data-act="mode"]').forEach(b=>b.classList.toggle("on",b===el));
+      document.getElementById("m-dur").classList.toggle("hidden",el.dataset.m!=="dur");
+      document.getElementById("m-range").classList.toggle("hidden",el.dataset.m!=="range"); break; }
+    case "addTime": {
+      let min, label="";
+      if(!document.getElementById("m-range").classList.contains("hidden")){
+        const v=id=>parseInt(document.getElementById(id).value)||0;
+        const fh=v("fh"), fm=v("fm"), th=v("th"), tm=v("tm");
+        if(fh>23||th>23||fm>59||tm>59) return toast("Часы 0–23, минуты 0–59.");
+        min=(th*60+tm)-(fh*60+fm);
+        if(min===0) return toast("Укажите время начала и конца.");
+        if(min<0) min+=1440;
+        label=`${pad(fh)}:${pad(fm)}–${pad(th)}:${pad(tm)}`;
+      } else min = (parseInt(document.getElementById("hIn").value)||0)*60 + (parseInt(document.getElementById("mIn").value)||0);
+      if(!(min>0) || min>1440) return toast("Укажите часы и/или минуты.");
+      rec().sessions.push({min,label}); save(); render(); break; }
+    case "delSession": rec().sessions.splice(+el.dataset.i,1); clean(); save(); render(); break;
+    case "logStudy": {
+      const st=S.students.find(x=>x.id===el.dataset.id); if(!st) break;
+      if(!st.pos) return toast("Сначала отметьте ползунком, на каком уроке изучающий.");
+      const ta=document.querySelector(`textarea[data-note="${st.id}"]`), it=ITEMS[st.pos-1];
+      rec().studies.push({sid:st.id,pos:st.pos,lesson:it.k==="l"?it.n:"",point:st.point||"",note:(ta?ta.value:"").trim()});
+      save(); render(true); break; }
+    case "delStudy": rec().studies.splice(+el.dataset.i,1); clean(); save(); render(true); break;
+    case "saveNote": rec().note=document.getElementById("dayNote").value.trim(); clean(); save(); render(); break;
+    case "lessonStep": { const s=S.students.find(x=>x.id===el.dataset.id); if(s){ s.pos=Math.max(0,Math.min(TOTAL,(s.pos||0)+(+el.dataset.d))); save(); studDom(s.id); } break; }
+    case "goal": S.goal=+el.dataset.g; save(); render(); break;
+    case "ym": S.yearMode=el.dataset.v; save(); render(); break;
+    case "prevMonth": calYM = calYM[1]===0?[calYM[0]-1,11]:[calYM[0],calYM[1]-1]; render(); break;
+    case "nextMonth": calYM = calYM[1]===11?[calYM[0]+1,0]:[calYM[0],calYM[1]+1]; render(); break;
+    case "openDay": curDate=el.dataset.k; tab="day"; render(); break;
+    case "addStud": {
+      const n=document.getElementById("newStud").value.trim(); if(!n) return;
+      S.students.push({id:"s"+Date.now(),name:n,pos:0,point:""}); save(); render(); break; }
+    case "delStud": if(pendingDel===el.dataset.id){ S.students=S.students.filter(x=>x.id!==el.dataset.id); pendingDel=null; save(); render(true); toast("Изучающий удалён"); } else { pendingDel=el.dataset.id; render(true); toast("Нажмите ещё раз, чтобы удалить"); } break;
+    case "export": {
+      const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+      const a2=document.createElement("a"); a2.href=URL.createObjectURL(blob); a2.download=`chasy-${key(today())}.json`; a2.click(); break; }
+    case "import": document.getElementById("file").click(); break;
+  }
+});
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.id==="dateIn"&&t.value){ curDate=t.value; render(); }
+  if(t.dataset.f){ const st=S.students.find(x=>x.id===t.dataset.id); if(st){ st[t.dataset.f]= t.value===""?"":+t.value; save(); studDom(st.id); } }
+  if(t.id==="file"&&t.files[0]){
+    const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.days) throw 0; { try{ localStorage.setItem(KEY+"-backup", localStorage.getItem(KEY)||""); }catch(_){} S=migrate(Object.assign({goal:30,yearMode:"service",days:{},students:[]},d)); save(); render(); } }catch(_){ toast("Файл не похож на копию данных."); } };
+    r.readAsText(t.files[0]);
+  }
+});
+document.addEventListener("input", e=>{
+  const t=e.target;
+  if(t.dataset.slide){ const s=S.students.find(x=>x.id===t.dataset.slide); if(s){ s.pos=+t.value; save(); studDom(s.id); } }
+});
+render();
+</script>
+</body>
+</html>
